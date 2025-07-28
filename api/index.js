@@ -2,6 +2,7 @@ require("dotenv").config()
 const express = require("express")
 const mongoose = require("mongoose")
 const userRouter = require("./routes/user.route")
+const authRouter = require("./routes/auth.route")
 const PORT = process.env.PORT
 const MONGO_URI = process.env.MONGO_URI
 
@@ -16,3 +17,4 @@ app.listen(PORT, () => {
 })
 
 app.use("/api/user", userRouter)
+app.use("/api/auth", authRouter)
