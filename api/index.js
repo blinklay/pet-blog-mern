@@ -1,10 +1,16 @@
 require("dotenv").config()
 const express = require("express")
+const mongoose = require("mongoose")
+const PORT = process.env.PORT
+const MONGO_URI = process.env.MONGO_URI
+
+mongoose.connect(MONGO_URI)
+  .then(() => console.log("mongoDB is running..."))
+  .catch(err => console.log("mongoDB have error, ", err))
 
 const app = express()
-const PORT = process.env.PORT
 
 app.listen(PORT, () => {
-  console.log("server is runnin on port: ", PORT);
+  console.log("server is running on port: ", PORT);
 
 })
