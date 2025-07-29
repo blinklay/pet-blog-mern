@@ -1,10 +1,11 @@
 const userModel = require("../models/user.model.js")
 const bcrypt = require("bcrypt")
-const signup = async (req, res) => {
+const errorHandler = require("../utils/error.js")
+const signup = async (req, res, next) => {
   const { username, email, password } = req.body
 
   if (!username || !email || !password || username === "" || email === "" || password === "") {
-    return res.status(400).json({ message: "Зполните все поля!" })
+    next(errorHandler(400, "Все поля должны быть заполнены!"))
   }
 
   try {
@@ -18,7 +19,7 @@ const signup = async (req, res) => {
     await newUser.save()
     res.status(200).json({ message: "Успешная регистрация! " })
   } catch (err) {
-    res.status(500).json({ message: "Ошибка при обработке запроса!" })
+    next(err)
   }
 }
 
