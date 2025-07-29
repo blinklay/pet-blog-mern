@@ -17,7 +17,11 @@ const signup = async (req, res, next) => {
     })
 
     await newUser.save()
-    res.status(200).json({ message: "Успешная регистрация! " })
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Успешная регистрация!"
+    })
   } catch (err) {
     next(err)
   }
