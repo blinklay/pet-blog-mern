@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { RxHamburgerMenu } from "react-icons/rx";
+import { useSelector } from "react-redux";
+import UserMenu from "./UserMenu";
+import ExitButton from "./ExitButton";
 
 const navLinks = [
   { to: "/", label: "Главная" },
@@ -10,7 +13,7 @@ const navLinks = [
 
 export default function Navigation() {
   const [visible, setVisible] = useState(false);
-
+  const { currentUser } = useSelector((state) => state.user);
   return (
     <div>
       {/* Desktop Navigation */}
@@ -24,22 +27,29 @@ export default function Navigation() {
             {link.label}
           </Link>
         ))}
-        <Link
-          to="/sign-in"
-          className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600"
-        >
-          Войти
-        </Link>
+        {currentUser ? (
+          <UserMenu />
+        ) : (
+          <Link
+            to="/sign-in"
+            className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600"
+          >
+            Войти
+          </Link>
+        )}
       </nav>
 
       {/* Burger Button */}
-      <button
-        onClick={() => setVisible(true)}
-        className="xl:hidden p-2 text-blue-500 border border-blue-500 rounded-md"
-        aria-label="Открыть меню"
-      >
-        <RxHamburgerMenu className="w-6 h-6" />
-      </button>
+      <div className="xl:hidden flex items-center gap-3">
+        <UserMenu />
+        <button
+          onClick={() => setVisible(true)}
+          className="p-2 text-blue-500 border border-blue-500 rounded-md"
+          aria-label="Открыть меню"
+        >
+          <RxHamburgerMenu className="w-6 h-6" />
+        </button>
+      </div>
 
       {/* Mobile Menu Overlay */}
       {visible && (
@@ -90,13 +100,17 @@ export default function Navigation() {
             </div>
 
             {/* Кнопка входа */}
-            <Link
-              to="/sign-in"
-              onClick={() => setVisible(false)}
-              className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 text-center"
-            >
-              Войти
-            </Link>
+            {currentUser ? (
+              <ExitButton className={"px-6 py-2"} />
+            ) : (
+              <Link
+                to="/sign-in"
+                onClick={() => setVisible(false)}
+                className="bg-blue-500 text-white rounded-md  px-6 py-2 hover:bg-blue-600 text-center"
+              >
+                Войти
+              </Link>
+            )}
           </nav>
         </div>
       )}
