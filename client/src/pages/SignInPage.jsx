@@ -7,6 +7,7 @@ import {
   signInStart,
   signInSuccess,
 } from "../features/user/userSlice";
+import OAuth from "../components/OAuth";
 
 export default function SignInPage() {
   const [formData, setFormData] = useState({});
@@ -82,6 +83,7 @@ export default function SignInPage() {
         >
           {loading ? "Загрузка..." : "Отправить"}
         </button>
+       <OAuth/>
       </form>
 
       <div className="flex gap-2 mt-4">
