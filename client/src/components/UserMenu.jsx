@@ -19,7 +19,7 @@ export default function UserMenu() {
       </button>
 
       {isDrop && (
-        <div className="absolute top-full right-0 border-2 border-gray-300 bg-white px-4 py-2">
+        <div className="absolute top-full right-0 border-2 border-gray-300 bg-white px-4 py-2 dark:text-black dark:bg-zinc-500">
           <p className="font-semibold">Профиль</p>
           <p>{currentUser.username}</p>
 

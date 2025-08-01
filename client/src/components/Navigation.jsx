@@ -17,12 +17,12 @@ export default function Navigation() {
   return (
     <div>
       {/* Desktop Navigation */}
-      <nav className="gap-6 items-center hidden xl:flex">
+      <nav className="gap-6 items-center hidden xl:flex ">
         {navLinks.map((link) => (
           <Link
             key={link.to}
             to={link.to}
-            className="text-gray-700 hover:text-blue-600"
+            className="text-gray-700 dark:text-white hover:text-blue-600"
           >
             {link.label}
           </Link>

@@ -57,7 +57,7 @@ export default function SignInPage() {
           <label htmlFor="username">Почта:</label>
           <input
             onChange={handleChange}
-            className="p-2 bg-gray-100 border border-blue-500 disabled:opacity-[0.5]"
+            className="p-2 bg-gray-100 border border-blue-500 disabled:opacity-[0.5] dark:bg-gray-400"
             type="email"
             placeholder="email"
             id="email"
@@ -70,7 +70,7 @@ export default function SignInPage() {
           <input
             disabled={loading}
             onChange={handleChange}
-            className="p-2 bg-gray-100 border border-blue-500 disabled:opacity-[0.5]"
+            className="p-2 bg-gray-100 border border-blue-500 disabled:opacity-[0.5] dark:bg-gray-400"
             type="password"
             placeholder="********"
             id="password"
@@ -83,7 +83,7 @@ export default function SignInPage() {
         >
           {loading ? "Загрузка..." : "Отправить"}
         </button>
-       <OAuth/>
+        <OAuth />
       </form>
 
       <div className="flex gap-2 mt-4">

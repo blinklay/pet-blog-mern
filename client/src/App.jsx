@@ -8,20 +8,28 @@ import SignUpPage from "./pages/SignUpPage";
 import DashboardPage from "./pages/DashboardPage";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { useSelector } from "react-redux";
+import { isDarkModeSelect } from "./features/theme/themeSelect";
 
 export default function App() {
+  const isDarkMode = useSelector(isDarkModeSelect);
+
   return (
-    <BrowserRouter>
-      <Header />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/projects" element={<ProjectsPage />} />
-        <Route path="/sign-in" element={<SignInPage />} />
-        <Route path="/sign-up" element={<SignUpPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-      </Routes>
-      <Footer />
-    </BrowserRouter>
+    <div
+      className={`${isDarkMode ? "dark" : ""} dark:bg-zinc-500 dark:text-white`}
+    >
+      <BrowserRouter>
+        <Header />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/sign-in" element={<SignInPage />} />
+          <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Routes>
+        <Footer />
+      </BrowserRouter>
+    </div>
   );
 }
