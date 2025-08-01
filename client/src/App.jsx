@@ -10,6 +10,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { useSelector } from "react-redux";
 import { isDarkModeSelect } from "./features/theme/themeSelect";
+import PrivateRoute from "./components/PrivateRoute";
 
 export default function App() {
   const isDarkMode = useSelector(isDarkModeSelect);
@@ -26,7 +27,9 @@ export default function App() {
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+          </Route>
         </Routes>
         <Footer />
       </BrowserRouter>

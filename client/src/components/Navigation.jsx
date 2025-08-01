@@ -41,7 +41,7 @@ export default function Navigation() {
 
       {/* Burger Button */}
       <div className="xl:hidden flex items-center gap-3">
-        <UserMenu />
+        {currentUser && <UserMenu />}
         <button
           onClick={() => setVisible(true)}
           className="p-2 text-blue-500 border border-blue-500 rounded-md"
