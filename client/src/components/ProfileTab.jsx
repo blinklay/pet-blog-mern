@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { signInSuccess } from "../features/user/userSlice";
 
 export default function ProfileTab({ user }) {
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
+  const dispatch = useDispatch();
   const filePickerRef = useRef();
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -17,7 +20,41 @@ export default function ProfileTab({ user }) {
       uploadImage();
     }
   }, [imageFile]);
-  const uploadImage = async () => {};
+  const uploadImage = async () => {
+    if (!imageFile) return;
+
+    const formData = new FormData();
+    formData.append("file", imageFile);
+    formData.append("upload_preset", "unsigned_preset");
+
+    try {
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dov0xxabv/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await res.json();
+      console.log(data);
+
+      const updateRes = await fetch("/api/user/update", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          imageUrl: data.secure_url,
+        }),
+      });
+
+      const updateUser = await updateRes.json();
+      console.log(updateUser);
+      dispatch(signInSuccess(updateUser));
+    } catch (err) {
+      console.error("Ошибка при загрузке:", err);
+    }
+  };
   return (
     <div className="p-6 max-w-xl mx-auto bg-white dark:bg-gray-900 rounded-xl shadow-md space-y-6">
       <input

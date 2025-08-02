@@ -1,7 +1,7 @@
 const express = require("express")
-const { test } = require("../controllers/user.controller")
+const { test, update } = require("../controllers/user.controller")
 const userRouter = express.Router()
 
-userRouter.get("/test", test)
+userRouter.put("/update", update)
 
 module.exports = userRouter

@@ -13,7 +13,7 @@ export default function UserMenu() {
         className="w-10 h-10 rounded-full overflow-hidden cursor-pointer flex items-center justify-center"
       >
         <img
-          className="objcet-cover"
+          className="objcet-cover w-full h-full"
           src={currentUser.profilePicture}
           alt="Аватар пользователя"
         />
