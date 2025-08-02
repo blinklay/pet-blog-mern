@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import ExitButton from "./ExitButton";
+import { Link } from "react-router-dom";
 
 export default function UserMenu() {
   const { currentUser } = useSelector((state) => state.user);
@@ -24,9 +25,12 @@ export default function UserMenu() {
           <p>{currentUser.username}</p>
 
           <div className="flex gap-3 mt-3">
-            <button className="bg-blue-500 text-white px-2 rounded-sm">
+            <Link
+              to="/dashboard?tab=profile"
+              className="bg-blue-500 text-white px-2 rounded-sm"
+            >
               Профиль
-            </button>
+            </Link>
             <ExitButton />
           </div>
         </div>
