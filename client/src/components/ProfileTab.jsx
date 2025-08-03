@@ -1,12 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../features/user/userSlice";
-
+import Modal from "./Modal";
+import { IoIosWarning } from "react-icons/io";
 export default function ProfileTab({ user }) {
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const dispatch = useDispatch();
   const filePickerRef = useRef();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -95,10 +98,33 @@ export default function ProfileTab({ user }) {
         <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
           Выйти
         </button>
-        <button className="px-4 py-2 bg-red-400 text-white rounded hover:bg-red-600 transition">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 bg-red-400 text-white rounded hover:bg-red-600 transition"
+        >
           Удалить аккаунт
         </button>
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <div className="flex flex-col gap-4 items-center">
+          <IoIosWarning className="text-5xl text-gray-400" />
+          <p className="text-2xl font-semibold text-center text-gray-400">
+            Вы действительно хотите удалить аккаунт?{" "}
+          </p>
+          <div className="flex gap-3">
+            <button className="bg-red-500 p-3 text-white rounded-md">
+              Да, удалить мой аккаунт!
+            </button>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="bg-gray-400 p-3 text-white rounded-md"
+            >
+              Нет, я передумал!
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
