@@ -3,20 +3,8 @@ const userModel = require("../models/user.model")
 const errorHandler = require("../utils/error")
 
 const update = async (req, res, next) => {
-  const token = req.cookies.access_token;
   const { imageUrl } = req.body;
-
-  if (!token) {
-    return next(errorHandler(401, "Пользователь не авторизирован!"));
-  }
-
-  let id;
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    id = decoded.id;
-  } catch (err) {
-    return next(errorHandler(401, "Неверный или истекший токен"));
-  }
+  const id = req.user.id;
 
   if (!imageUrl || typeof imageUrl !== "string") {
     return next(errorHandler(400, "Некорректная ссылка на изображение"));
@@ -37,4 +25,17 @@ const update = async (req, res, next) => {
   }
 };
 
-module.exports = { update }
+const deleteUser = async (req, res, next) => {
+  if (req.user.id !== req.params.userId) {
+    return next(errorHandler(401, "Вы не авторизовнны для удаления этого пользователя!"))
+  }
+
+  try {
+    await userModel.findOneAndDelete(req.params.userID)
+    res.status(200).json({ message: "Пользователь успешно удален!" })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { update, deleteUser }
