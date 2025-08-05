@@ -1,14 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { signInSuccess } from "../features/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
+  signInSuccess,
+} from "../features/user/userSlice";
 import Modal from "./Modal";
 import { IoIosWarning } from "react-icons/io";
+import { userSelect } from "../features/user/userSelect";
 export default function ProfileTab({ user }) {
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const dispatch = useDispatch();
   const filePickerRef = useRef();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { loading, error } = useSelector(userSelect);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -52,10 +59,28 @@ export default function ProfileTab({ user }) {
       });
 
       const updateUser = await updateRes.json();
-      console.log(updateUser);
       dispatch(signInSuccess(updateUser));
     } catch (err) {
       console.error("Ошибка при загрузке:", err);
+    }
+  };
+
+  const deleteUser = async () => {
+    dispatch(deleteUserStart());
+    try {
+      const res = await fetch(`/api/user/delete/${user._id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        dispatch(deleteUserFailure(data.message));
+      } else {
+        dispatch(deleteUserSuccess());
+        setIsModalOpen(false);
+      }
+    } catch (err) {
+      dispatch(deleteUserFailure(err.message));
     }
   };
   return (
@@ -112,9 +137,13 @@ export default function ProfileTab({ user }) {
           <p className="text-2xl font-semibold text-center text-gray-400">
             Вы действительно хотите удалить аккаунт?{" "}
           </p>
-          <div className="flex gap-3">
-            <button className="bg-red-500 p-3 text-white rounded-md">
-              Да, удалить мой аккаунт!
+          <div className="flex gap-3 flex-col lg:flex-row">
+            <button
+              onClick={deleteUser}
+              disabled={loading}
+              className="bg-red-500 p-3 text-white rounded-md disabled:opacity-[0.5]"
+            >
+              Да, я уверен!
             </button>
             <button
               onClick={() => setIsModalOpen(false)}
@@ -123,6 +152,12 @@ export default function ProfileTab({ user }) {
               Нет, я передумал!
             </button>
           </div>
+
+          {error && (
+            <div className="bg-red-400 border border-red-500 text-red-100 p-3 text-center rounded-md">
+              {error}
+            </div>
+          )}
         </div>
       </Modal>
     </div>
