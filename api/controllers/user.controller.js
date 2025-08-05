@@ -38,4 +38,14 @@ const deleteUser = async (req, res, next) => {
   }
 }
 
-module.exports = { update, deleteUser }
+const signout = (req, res, next) => {
+  try {
+    res.clearCookie("access_token").status(200).json({
+      message: "Вы успешно вышли из аккаунта!"
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { update, deleteUser, signout }

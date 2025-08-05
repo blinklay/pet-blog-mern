@@ -5,6 +5,7 @@ import {
   deleteUserStart,
   deleteUserSuccess,
   signInSuccess,
+  signOutSuccess,
 } from "../features/user/userSlice";
 import Modal from "./Modal";
 import { IoIosWarning } from "react-icons/io";
@@ -83,6 +84,25 @@ export default function ProfileTab({ user }) {
       dispatch(deleteUserFailure(err.message));
     }
   };
+
+  const handleSignout = async () => {
+    try {
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signOutSuccess());
+      }
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
   return (
     <div className="p-6 max-w-xl mx-auto bg-white dark:bg-gray-900 rounded-xl shadow-md space-y-6">
       <input
@@ -120,7 +140,10 @@ export default function ProfileTab({ user }) {
       </div>
 
       <div className="flex gap-4 mt-4">
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+        <button
+          onClick={handleSignout}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        >
           Выйти
         </button>
         <button
