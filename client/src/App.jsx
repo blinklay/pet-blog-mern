@@ -11,6 +11,8 @@ import Footer from "./components/Footer";
 import { useSelector } from "react-redux";
 import { isDarkModeSelect } from "./features/theme/themeSelect";
 import PrivateRoute from "./components/PrivateRoute";
+import CreatePostPage from "./pages/createPostPage";
+import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
 
 export default function App() {
   const isDarkMode = useSelector(isDarkModeSelect);
@@ -29,6 +31,9 @@ export default function App() {
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+          </Route>
+          <Route element={<OnlyAdminPrivateRoute />}>
+            <Route path="/create-post" element={<CreatePostPage />} />
           </Route>
         </Routes>
         <Footer />

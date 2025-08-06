@@ -10,6 +10,7 @@ import {
 import Modal from "./Modal";
 import { IoIosWarning } from "react-icons/io";
 import { userSelect } from "../features/user/userSelect";
+import { Link } from "react-router-dom";
 export default function ProfileTab({ user }) {
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
@@ -153,6 +154,16 @@ export default function ProfileTab({ user }) {
           Удалить аккаунт
         </button>
       </div>
+
+      {user.isAdmin && (
+        <div>
+          <Link to="/create-post">
+            <button className="bg-blue-500 w-full p-2 text-xl text-white rounded-md hover:bg-blue-600 transition">
+              Создать пост
+            </button>
+          </Link>
+        </div>
+      )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="flex flex-col gap-4 items-center">
