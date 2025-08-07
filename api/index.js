@@ -7,6 +7,7 @@ const PORT = process.env.PORT
 const MONGO_URI = process.env.MONGO_URI
 const cookieParser = require("cookie-parser")
 const cors = require("cors")
+const postRouter = require("./routes/post.route")
 mongoose.connect(MONGO_URI)
   .then(() => console.log("mongoDB is running..."))
   .catch(err => console.log("mongoDB have error, ", err))
@@ -24,6 +25,7 @@ app.listen(PORT, () => {
 
 app.use("/api/user", userRouter)
 app.use("/api/auth", authRouter)
+app.use("/api/post", postRouter)
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
