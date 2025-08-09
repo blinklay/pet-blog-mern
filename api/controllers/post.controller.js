@@ -15,9 +15,9 @@ const create = async (req, res, next) => {
   })
 
   try {
-    const sacedPost = await newPost.save();
+    const savedPost = await newPost.save();
     res.status(200).json({
-      sacedPost
+      ...savedPost._doc
     })
   } catch (err) {
     next(err)

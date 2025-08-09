@@ -1,35 +1,69 @@
 import React, { useRef, useState } from "react";
 import TextEditor from "../components/RichTextEditor";
+import { useNavigate } from "react-router-dom";
 export default function CreatePostPage() {
   const fileRef = useRef();
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
-  const [content, setContent] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [formData, setFormData] = useState({});
+  const navigate = useNavigate();
   const handleUploadImage = async () => {
-    setErrorMessage(null);
     if (!imageFile) {
       return setErrorMessage("Выберете изображение!");
     }
+    setErrorMessage(null);
     setImageFileUrl(URL.createObjectURL(imageFile));
-    const formData = new FormData();
-    formData.append("file", imageFile);
-    formData.append("upload_preset", "unsigned_preset");
+    const uploadData = new FormData();
+    uploadData.append("file", imageFile);
+    uploadData.append("upload_preset", "unsigned_preset");
 
     try {
       const res = await fetch(
         "https://api.cloudinary.com/v1_1/dov0xxabv/image/upload",
         {
           method: "POST",
-          body: formData,
+          body: uploadData,
         }
       );
 
       const data = await res.json();
+      if (!res.ok) {
+        console.log(res);
+
+        throw new Error("Ошибка загрузки картинки!");
+      }
       setFormData({ ...formData, image: data.secure_url });
     } catch (err) {
       console.error("Ошибка при отправке!", err);
+      setErrorMessage(err.message);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(formData);
+
+    try {
+      const res = await fetch("/api/post/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorMessage(data.message);
+        return;
+      }
+      if (res.ok) {
+        setErrorMessage(null);
+        console.log(data);
+
+        navigate(`/post/${data.slug}`);
+      }
+    } catch (err) {
+      console.error(err);
       setErrorMessage(err.message);
     }
   };
@@ -42,16 +76,25 @@ export default function CreatePostPage() {
       {formData.image && (
         <img src={imageFileUrl} alt="Обложка поста" className="max-h-[540px]" />
       )}
-      <form className="flex flex-col gap-4 mt-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
         <div className="flex flex-col gap-4 sm:flex-row justiffy-between">
           <input
             type="text"
             id="title"
             placeholder="Загаловок"
             className="flex-1 border border-gray-300 p-2"
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
           />
 
-          <select className="border border-gray-300" id="category">
+          <select
+            onChange={(e) =>
+              setFormData({ ...formData, category: e.target.value })
+            }
+            className="border border-gray-300"
+            id="category"
+          >
             <option value="uncategory">Выберете категорию</option>
             <option value="javascript">JavaScript</option>
             <option value="react.js">React.js</option>
@@ -86,7 +129,12 @@ export default function CreatePostPage() {
           </button>
         </div>
 
-        <TextEditor content={content} onChange={setContent} />
+        <TextEditor
+          content={formData.content}
+          onChange={(e) => {
+            setFormData({ ...formData, content: e });
+          }}
+        />
         <button
           type="submit"
           className="bg-blue-500 p-2 text-white rounded-md hover:bg-blue-600 transition"
