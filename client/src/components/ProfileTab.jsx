@@ -49,7 +49,6 @@ export default function ProfileTab({ user }) {
       );
 
       const data = await res.json();
-      console.log(data);
 
       const updateRes = await fetch("/api/user/update", {
         method: "PUT",
