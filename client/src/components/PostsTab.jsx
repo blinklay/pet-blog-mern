@@ -4,12 +4,15 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { userSelect } from "../features/user/userSelect";
 import { Link } from "react-router-dom";
+import { MdDelete } from "react-icons/md";
 
 export default function PostsTab() {
   const { currentUser } = useSelector(userSelect);
   const [usersPosts, setUserPosts] = useState([]);
   const [getPostsFailure, setGetPostsFailure] = useState(null);
   const [getPostsLoading, setGetPostsLoaing] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedPosts, setSelectedPosts] = useState([]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -35,8 +38,48 @@ export default function PostsTab() {
     if (currentUser.isAdmin) fetchPosts();
   }, [currentUser._id]);
 
+  useEffect(() => {
+    if (!selectMode) {
+      setSelectedPosts([]);
+    }
+  }, [selectMode]);
+
+  const handleSelect = (id) => {
+    if (!selectMode) return;
+
+    if (selectedPosts.includes(id)) {
+      setSelectedPosts((prev) => prev.filter((item) => item !== id));
+    }
+    if (!selectedPosts.includes(id)) {
+      setSelectedPosts((prev) => [...prev, id]);
+    }
+  };
+
   return (
     <div>
+      <div className="flex gap-2 mb-4 items-center">
+        <div className="">
+          {!selectMode ? (
+            <button
+              className="bg-indigo-500 dark:bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-600 dark:hover:bg-indigo-700 transition-colors"
+              onClick={() => setSelectMode(true)}
+            >
+              Выбрать
+            </button>
+          ) : (
+            <button
+              className="bg-red-500 dark:bg-red-600 text-white px-4 py-2 rounded hover:bg-red-600 dark:hover:bg-red-700 transition-colors"
+              onClick={() => setSelectMode(false)}
+            >
+              {selectedPosts.length === 0 ? "Отменить" : "Удалить"}
+            </button>
+          )}
+        </div>
+        {selectedPosts.length > 0 && selectMode && (
+          <p className="font-semibold">Выбрано: {selectedPosts.length}</p>
+        )}
+      </div>
+
       {getPostsLoading && (
         <div className="flex justify-center items-center py-10">
           <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
@@ -52,8 +95,13 @@ export default function PostsTab() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {usersPosts.map(({ _id, content, image, category, title, slug }) => (
             <div
+              onClick={() => handleSelect(_id)}
               key={_id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col border border-gray-200 dark:border-gray-700"
+              className={`bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col border  dark:border-gray-700 ${
+                selectedPosts.includes(_id) && selectMode
+                  ? " border-blue-500 opacity-[0.7]"
+                  : "border-gray-200"
+              }`}
             >
               {image && (
                 <img
@@ -73,12 +121,20 @@ export default function PostsTab() {
                   className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3 flex-1"
                   dangerouslySetInnerHTML={{ __html: content }}
                 />
-                <Link
-                  to={`/posts/${slug}`}
-                  className="mt-auto bg-indigo-500 dark:bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-600 dark:hover:bg-indigo-700 transition-colors text-center"
-                >
-                  Подробнее
-                </Link>
+                <div className="flex items-center justify-between mt-2">
+                  <Link
+                    to={`/posts/${slug}`}
+                    className="bg-indigo-500 dark:bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-600 dark:hover:bg-indigo-700 transition-colors text-center"
+                  >
+                    Подробнее
+                  </Link>
+                  <button
+                    type="button"
+                    className="ml-2 text-red-500 hover:text-red-700 transition-colors p-2 rounded"
+                  >
+                    <MdDelete size={22} />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
