@@ -66,4 +66,48 @@ const getPosts = async (req, res, next) => {
   }
 }
 
-module.exports = { create, getPosts }
+const deletePost = async (req, res, next) => {
+  try {
+    const { postId } = req.params
+    const post = await postModel.findById(postId);
+    if (!post) {
+      return next(errorHandler(404, "Пост не найден!"))
+    }
+    if (post.userId !== req.user.id) {
+      return next(errorHandler(400, "Удалить пост может только его владелец!"))
+    }
+
+    await postModel.findOneAndDelete({ _id: postId, userId: req.user.id })
+    res.status(200).json({ message: "Пост успешно удален!" })
+  } catch (err) {
+    next(err)
+  }
+}
+
+const deleteSelectedPosts = async (req, res, next) => {
+  try {
+    const { postsIds } = req.body;
+
+    if (!Array.isArray(postsIds) || postsIds.length === 0) {
+      return res.status(400).json({ message: 'postsIds должен быть непустым массивом' });
+    }
+
+    const validIds = postsIds.map(id => mongoose.Types.ObjectId(id));
+
+    const deleteResult = await postModel.deleteMany({
+      _id: { $in: validIds },
+      userId: req.user.id,
+    });
+
+    if (deleteResult.deletedCount === 0) {
+      return res.status(404).json({ message: 'Посты не найдены или не принадлежат пользователю' });
+    }
+
+    res.status(200).json({ message: `Удаление постов (${deleteResult.deletedCount}) прошло успешно!` });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+module.exports = { create, getPosts, deletePost, deleteSelectedPosts }
