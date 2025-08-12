@@ -14,6 +14,10 @@ export default function PostsTab() {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedPosts, setSelectedPosts] = useState([]);
 
+  const [errorAlert, setErrorAlert] = useState(null);
+  const [successAlert, setSuccessAlert] = useState(null);
+  const [deletePostLoading, setDeletePostLoading] = useState(false);
+
   useEffect(() => {
     const fetchPosts = async () => {
       setGetPostsLoaing(true);
@@ -36,7 +40,7 @@ export default function PostsTab() {
     };
 
     if (currentUser.isAdmin) fetchPosts();
-  }, [currentUser._id]);
+  }, [currentUser._id, successAlert]);
 
   useEffect(() => {
     if (!selectMode) {
@@ -55,30 +59,87 @@ export default function PostsTab() {
     }
   };
 
+  const handleDelete = async (id) => {
+    setDeletePostLoading(true);
+    setErrorAlert(null);
+    try {
+      const res = await fetch(`/api/post/delete/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        return setErrorAlert(data.message);
+      }
+
+      if (res.ok) {
+        setSuccessAlert(data.message);
+      }
+    } catch (err) {
+      setErrorAlert(err.message);
+    } finally {
+      setDeletePostLoading(false);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedPosts.length < 1) return;
+    setDeletePostLoading(true);
+    setErrorAlert(null);
+    try {
+      const res = await fetch("/api/post/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postsIds: selectedPosts }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setErrorAlert(data.message);
+      }
+
+      if (res.ok) {
+        setSuccessAlert(data.message);
+        setSelectedPosts([]);
+        setSelectMode(false);
+      }
+    } catch (err) {
+      setErrorAlert(err.message);
+    } finally {
+      setDeletePostLoading(false);
+    }
+  };
+
   return (
     <div>
-      <div className="flex gap-2 mb-4 items-center">
-        <div className="">
-          {!selectMode ? (
-            <button
-              className="bg-indigo-500 dark:bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-600 dark:hover:bg-indigo-700 transition-colors"
-              onClick={() => setSelectMode(true)}
-            >
-              Выбрать
-            </button>
-          ) : (
-            <button
-              className="bg-red-500 dark:bg-red-600 text-white px-4 py-2 rounded hover:bg-red-600 dark:hover:bg-red-700 transition-colors"
-              onClick={() => setSelectMode(false)}
-            >
-              {selectedPosts.length === 0 ? "Отменить" : "Удалить"}
-            </button>
+      {usersPosts.length > 0 && (
+        <div className="flex gap-2 mb-4 items-center">
+          <div className="">
+            {!selectMode ? (
+              <button
+                className="bg-indigo-500 dark:bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-600 dark:hover:bg-indigo-700 transition-colors"
+                onClick={() => setSelectMode(true)}
+              >
+                Выбрать
+              </button>
+            ) : (
+              <button
+                className="bg-red-500 dark:bg-red-600 text-white px-4 py-2 rounded hover:bg-red-600 dark:hover:bg-red-700 transition-colors"
+                onClick={() =>
+                  selectedPosts.length > 0
+                    ? handleDeleteSelected()
+                    : setSelectMode(false)
+                }
+              >
+                {selectedPosts.length === 0 ? "Отменить" : "Удалить"}
+              </button>
+            )}
+          </div>
+          {selectedPosts.length > 0 && selectMode && (
+            <p className="font-semibold">Выбрано: {selectedPosts.length}</p>
           )}
         </div>
-        {selectedPosts.length > 0 && selectMode && (
-          <p className="font-semibold">Выбрано: {selectedPosts.length}</p>
-        )}
-      </div>
+      )}
 
       {getPostsLoading && (
         <div className="flex justify-center items-center py-10">
@@ -88,6 +149,17 @@ export default function PostsTab() {
       {getPostsFailure && (
         <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
           Ошибка при получении данных: {getPostsFailure}
+        </div>
+      )}
+      {errorAlert && (
+        <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
+          Ошибка при удалении: {errorAlert}
+        </div>
+      )}
+
+      {successAlert && (
+        <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-200 px-4 py-3 rounded mb-4">
+          {successAlert}
         </div>
       )}
 
@@ -129,6 +201,8 @@ export default function PostsTab() {
                     Подробнее
                   </Link>
                   <button
+                    onClick={() => handleDelete(_id)}
+                    disabled={deletePostLoading}
                     type="button"
                     className="ml-2 text-red-500 hover:text-red-700 transition-colors p-2 rounded"
                   >

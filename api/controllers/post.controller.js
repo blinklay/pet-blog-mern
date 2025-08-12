@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose")
 const postModel = require("../models/post.model")
 const errorHandler = require("../utils/error")
 
@@ -92,7 +93,7 @@ const deleteSelectedPosts = async (req, res, next) => {
       return res.status(400).json({ message: 'postsIds должен быть непустым массивом' });
     }
 
-    const validIds = postsIds.map(id => mongoose.Types.ObjectId(id));
+    const validIds = postsIds.map(id => new mongoose.Types.ObjectId(id));
 
     const deleteResult = await postModel.deleteMany({
       _id: { $in: validIds },
