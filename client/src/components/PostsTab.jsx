@@ -18,6 +18,7 @@ export default function PostsTab() {
   const [successAlert, setSuccessAlert] = useState(null);
   const [deletePostLoading, setDeletePostLoading] = useState(false);
 
+  const [showMore, setShowMore] = useState(true);
   useEffect(() => {
     const fetchPosts = async () => {
       setGetPostsLoaing(true);
@@ -30,6 +31,7 @@ export default function PostsTab() {
         }
         if (res.ok) {
           setUserPosts(data.posts);
+          if (data.posts.length < 9) setShowMore(true);
         }
       } catch (err) {
         console.error(err);
@@ -56,6 +58,30 @@ export default function PostsTab() {
     }
     if (!selectedPosts.includes(id)) {
       setSelectedPosts((prev) => [...prev, id]);
+    }
+  };
+
+  const handleShowMore = async () => {
+    const startIndex = usersPosts.length;
+    try {
+      const res = await fetch(
+        `/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        return setGetPostsFailure(data.message);
+      }
+
+      if (res.ok) {
+        setUserPosts((prev) => [...prev, ...data.posts]);
+        if (data.posts.length < 9) {
+          setShowMore(false);
+        }
+      }
+    } catch (err) {
+      console.log(err.message);
+      setGetPostsFailure(err.message);
     }
   };
 
@@ -219,6 +245,15 @@ export default function PostsTab() {
             Ваш список постов пуст...
           </div>
         )
+      )}
+
+      {showMore && (
+        <button
+          onClick={handleShowMore}
+          className="container bg-indigo-500 mx-auto my-3 rounded-md hover:bg-indigo-600 transition p-2 text-center text-white"
+        >
+          Показать еще
+        </button>
       )}
     </div>
   );
