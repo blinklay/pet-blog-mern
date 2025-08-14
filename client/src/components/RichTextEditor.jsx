@@ -23,7 +23,7 @@ export default function TextEditor({ content = "", onChange }) {
   if (!editor) return null;
 
   return (
-    <div className="w-full border rounded-xl p-4 bg-white">
+    <div className="w-full border rounded-xl p-4 bg-white dark:bg-gray-700">
       {/* Toolbar */}
       <div className="flex flex-wrap gap-2 mb-3 border-b pb-2">
         <ToolbarButton editor={editor} command="toggleBold" label="B" />
@@ -34,7 +34,7 @@ export default function TextEditor({ content = "", onChange }) {
       {/* Editor */}
       <EditorContent
         editor={editor}
-        className="[&_p]:p-2 [&_p]:bg-gray-100 [&_p]:rounded-md"
+        className="[&_p]:p-2 [&_p]:bg-gray-100 [&_p]:rounded-md dark:[&_p]:bg-gray-600"
       />
     </div>
   );

@@ -221,7 +221,7 @@ export default function PostsTab() {
                 />
                 <div className="flex items-center justify-between mt-2">
                   <Link
-                    to={`/posts/${slug}`}
+                    to={`/post/${slug}`}
                     className="bg-indigo-500 dark:bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-600 dark:hover:bg-indigo-700 transition-colors text-center"
                   >
                     Подробнее
