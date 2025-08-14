@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose")
 const postModel = require("../models/post.model")
 const errorHandler = require("../utils/error")
+const jwt = require("jsonwebtoken")
 
 const create = async (req, res, next) => {
   if (!req.user.isAdmin) {
@@ -124,4 +125,41 @@ const getCurrentPost = async (req, res, next) => {
   }
 }
 
-module.exports = { create, getPosts, deletePost, deleteSelectedPosts, getCurrentPost }
+const updatePost = async (req, res, next) => {
+  try {
+    const { title, content } = req.body;
+
+    if (!title || !content || title.length === 0 || content.length === 0) {
+      return next(errorHandler(400, "Все поля должны быть заполнены!"))
+    }
+
+    const { postSlug } = req.params
+    const post = await postModel.findOne({ slug: postSlug })
+    if (!post) {
+      return next(errorHandler(404, "Пост не найден!"))
+    }
+
+    const token = req.cookies.access_token
+    const verifyToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+    if (verifyToken.id !== post.userId) {
+      return next(errorHandler(403, "Нет доступа!"))
+    }
+
+    const newSlug = req.body.title.split(" ").join("-").toLowerCase().replace(/[^a-zA-Z0-9-]/g, "-")
+    const checkUniqeSlug = await postModel.findOne({ slug: newSlug })
+    if (checkUniqeSlug) {
+      return next(errorHandler(400, "Пост с таким именем уже существует!"))
+    }
+
+    post.title = title;
+    post.slug = newSlug;
+    post.content = content;
+    const updatedPost = await post.save()
+    return res.status(200).json({ updatedPost })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { create, getPosts, deletePost, deleteSelectedPosts, getCurrentPost, updatePost }
