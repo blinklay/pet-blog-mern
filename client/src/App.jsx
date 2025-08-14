@@ -13,6 +13,7 @@ import { isDarkModeSelect } from "./features/theme/themeSelect";
 import PrivateRoute from "./components/PrivateRoute";
 import CreatePostPage from "./pages/createPostPage";
 import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
+import SinglePostPage from "./pages/SinglePostPage";
 
 export default function App() {
   const isDarkMode = useSelector(isDarkModeSelect);
@@ -35,6 +36,7 @@ export default function App() {
           <Route element={<OnlyAdminPrivateRoute />}>
             <Route path="/create-post" element={<CreatePostPage />} />
           </Route>
+          <Route path="/post/:postSlug" element={<SinglePostPage />} />
         </Routes>
         <Footer />
       </BrowserRouter>

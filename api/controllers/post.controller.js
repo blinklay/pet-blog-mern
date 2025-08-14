@@ -110,5 +110,18 @@ const deleteSelectedPosts = async (req, res, next) => {
   }
 };
 
+const getCurrentPost = async (req, res, next) => {
+  const { postSlug } = req.params
+  try {
+    const post = await postModel.findOne({ slug: postSlug })
+    if (!post) {
+      return next(errorHandler(404, "Пост не найден!"))
+    }
 
-module.exports = { create, getPosts, deletePost, deleteSelectedPosts }
+    res.status(200).json({ post })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { create, getPosts, deletePost, deleteSelectedPosts, getCurrentPost }
