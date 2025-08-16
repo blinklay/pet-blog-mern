@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose")
 const postModel = require("../models/post.model")
 const errorHandler = require("../utils/error")
 const jwt = require("jsonwebtoken")
+const commentModel = require("../models/coment.model")
 
 const create = async (req, res, next) => {
   if (!req.user.isAdmin) {
@@ -114,7 +115,13 @@ const deleteSelectedPosts = async (req, res, next) => {
 const getCurrentPost = async (req, res, next) => {
   const { postSlug } = req.params
   try {
-    const post = await postModel.findOne({ slug: postSlug })
+    const post = await postModel.findOne({ slug: postSlug }).populate({
+      path: "comments",
+      populate: {
+        path: "author",
+        select: "profilePicture username"
+      }
+    })
     if (!post) {
       return next(errorHandler(404, "Пост не найден!"))
     }
@@ -162,4 +169,39 @@ const updatePost = async (req, res, next) => {
   }
 }
 
-module.exports = { create, getPosts, deletePost, deleteSelectedPosts, getCurrentPost, updatePost }
+const addComment = async (req, res, next) => {
+  try {
+    const { postSlug } = req.params;
+    const { text } = req.body;
+
+    if (!text || text.trim().length === 0) {
+      return next(errorHandler(400, "Комментарий не может быть пустым!"));
+    }
+
+    const post = await postModel.findOne({ slug: postSlug });
+    if (!post) {
+      return next(errorHandler(404, "Пост не найден!"));
+    }
+
+    const comment = new commentModel({
+      author: req.user.id,
+      text: text.trim(),
+    });
+
+    const newComment = await comment.save();
+
+    await postModel.findByIdAndUpdate(post._id, {
+      $push: { comments: newComment._id }
+    });
+
+    // возвращаем сразу с автором
+    const populatedComment = await newComment.populate("author");
+
+    res.status(201).json(populatedComment);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+module.exports = { create, getPosts, deletePost, deleteSelectedPosts, getCurrentPost, updatePost, addComment }

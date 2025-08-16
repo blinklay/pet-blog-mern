@@ -26,7 +26,13 @@ const postSchema = new Schema({
     type: String,
     required: true,
     unique: true
-  }
+  },
+  comments: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Comment"
+    }
+  ]
 }, {
   timestamps: true
 })
