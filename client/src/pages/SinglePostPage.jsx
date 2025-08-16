@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { userSelect } from "../features/user/userSelect";
 import TextEditor from "../components/RichTextEditor";
+import CommentSection from "../components/CommentSection";
 export default function SinglePostPage() {
   const { postSlug } = useParams();
   const [post, setPost] = useState(null);
@@ -35,7 +36,7 @@ export default function SinglePostPage() {
           setPost(data.post);
           setTitle(data.post.title);
           setContent(data.post.content);
-          if (data.post.userId === currentUser._id) {
+          if (data.post.userId === currentUser?._id) {
             setIsOwner(true);
           }
         }
@@ -119,7 +120,7 @@ export default function SinglePostPage() {
   };
 
   return (
-    <div className="w-5xl min-h-screen mx-auto p-4 dark:bg-gray-900 bg-gray-100">
+    <div className="w-5xl min-h-screen mx-auto p-4 dark:bg-gray-900 bg-gray-100 flex flex-col">
       {postFailure && (
         <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
           Ошибка при обновлении данных: {postFailure}
@@ -169,6 +170,7 @@ export default function SinglePostPage() {
           className="w-full max-h-96 object-cover rounded mb-6"
         />
       )}
+
       {isEdit ? (
         <form
           onSubmit={(e) => {
@@ -197,6 +199,7 @@ export default function SinglePostPage() {
           />
         </>
       )}
+      <CommentSection />
     </div>
   );
 }
