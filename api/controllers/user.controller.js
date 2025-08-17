@@ -2,6 +2,22 @@ const jwt = require("jsonwebtoken")
 const userModel = require("../models/user.model")
 const errorHandler = require("../utils/error")
 
+const getAllUsers = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = parseInt(req.query.startIndex) || 0
+
+    if (!req.user.isAdmin) {
+      return next(errorHandler(403, "Недостаточно прав для этого!"))
+    }
+
+    const users = await userModel.find().skip(startIndex).limit(limit)
+    res.status(200).json(users)
+  } catch (err) {
+    next(err)
+  }
+}
+
 const update = async (req, res, next) => {
   const { imageUrl } = req.body;
   const id = req.user.id;
@@ -48,4 +64,4 @@ const signout = (req, res, next) => {
   }
 }
 
-module.exports = { update, deleteUser, signout }
+module.exports = { update, deleteUser, signout, getAllUsers }

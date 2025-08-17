@@ -16,8 +16,8 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-  origin: "http://localhost:5173", // замени на адрес клиента (например, Vite или React app)
-  credentials: true // позволяет передавать cookie
+  origin: "http://localhost:5173",
+  credentials: true
 }));
 app.listen(PORT, () => {
   console.log("server is running on port: ", PORT);
