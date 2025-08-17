@@ -5,6 +5,7 @@ import ProfileTab from "../components/ProfileTab";
 import { useSelector } from "react-redux";
 import { userSelect } from "../features/user/userSelect";
 import PostsTab from "../components/PostsTab";
+import UsersTab from "../components/UsersTab";
 
 export default function DashboardPage() {
   const { currentUser } = useSelector(userSelect);
@@ -17,6 +18,7 @@ export default function DashboardPage() {
       {tab === "profile" && <ProfileTab user={currentUser} />}
       {tab === "comments" && <div>Комментарии пользователя</div>}
       {tab === "posts" && <PostsTab />}
+      {tab === "users" && <UsersTab />}
     </div>
   );
 }
