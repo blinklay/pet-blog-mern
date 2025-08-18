@@ -12,7 +12,54 @@ const getAllUsers = async (req, res, next) => {
     }
 
     const users = await userModel.find().skip(startIndex).limit(limit)
-    res.status(200).json(users)
+    const totalUsers = await userModel.countDocuments()
+    res.status(200).json({
+      users,
+      totalUsers,
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+const getUsersByText = async (req, res, next) => {
+  try {
+    const query = req.query.searchQuery || "";
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = parseInt(req.query.startIndex) || 0
+
+    if (!req.user.isAdmin) {
+      return next(errorHandler(403, "Недостаточно прав для этого!"))
+    }
+
+    const users = await userModel.find({
+      $or: [
+        { username: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+      ]
+    }, "username email").skip(startIndex).limit(limit)
+    const totalUsers = await userModel.countDocuments()
+    res.status(200).json({ users, totalUsers })
+  } catch (err) {
+    next(err)
+  }
+}
+
+const changeUserRole = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const user = await userModel.findById(userId)
+    if (!req.user.isAdmin) {
+      return next(errorHandler(403, "Недостаточно прав для этого!"))
+    }
+    if (!user) {
+      return next(errorHandler(404, "Пользователь не найден!"))
+    }
+
+    const updatedUser = await userModel.findByIdAndUpdate(userId, {
+      isAdmin: !user.isAdmin
+    }, { new: true })
+    res.status(200).json(updatedUser)
   } catch (err) {
     next(err)
   }
@@ -43,7 +90,9 @@ const update = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   if (req.user.id !== req.params.userId) {
-    return next(errorHandler(401, "Вы не авторизовнны для удаления этого пользователя!"))
+    if (!req.user.isAdmin) {
+      return next(errorHandler(403, "у вас нет прав для удаления этого пользователя!"))
+    }
   }
 
   try {
@@ -64,4 +113,4 @@ const signout = (req, res, next) => {
   }
 }
 
-module.exports = { update, deleteUser, signout, getAllUsers }
+module.exports = { update, deleteUser, signout, getAllUsers, changeUserRole, getUsersByText }

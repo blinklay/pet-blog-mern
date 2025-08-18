@@ -23,7 +23,7 @@ export default function UsersTab() {
           setGetUsersFailure(data.message);
         }
         if (res.ok) {
-          setUsers(data);
+          setUsers(data.users);
           if (data.length > 10) {
             setShowMore(true);
           }
@@ -59,7 +59,7 @@ export default function UsersTab() {
         setGetUsersFailure(data.message);
       }
       if (res.ok) {
-        setUsers((prev) => [...prev, ...data]);
+        setUsers((prev) => [...prev, ...data.users]);
         if (data.length < 10) {
           setShowMore(false);
         }
