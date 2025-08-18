@@ -37,7 +37,7 @@ const getUsersByText = async (req, res, next) => {
         { username: { $regex: query, $options: "i" } },
         { email: { $regex: query, $options: "i" } },
       ]
-    }, "username email").skip(startIndex).limit(limit)
+    }, { password: 0 }).skip(startIndex).limit(limit)
     const totalUsers = await userModel.countDocuments()
     res.status(200).json({ users, totalUsers })
   } catch (err) {
@@ -89,14 +89,16 @@ const update = async (req, res, next) => {
 };
 
 const deleteUser = async (req, res, next) => {
-  if (req.user.id !== req.params.userId) {
+  const { userId } = req.params
+
+  if (req.user.id !== userId) {
     if (!req.user.isAdmin) {
       return next(errorHandler(403, "у вас нет прав для удаления этого пользователя!"))
     }
   }
 
   try {
-    await userModel.findOneAndDelete(req.params.userID)
+    await userModel.findOneAndDelete({ _id: userId })
     res.status(200).json({ message: "Пользователь успешно удален!" })
   } catch (err) {
     next(err)

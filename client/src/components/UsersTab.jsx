@@ -11,7 +11,11 @@ export default function UsersTab() {
   const [getUsersFailure, setGetUsersFailure] = useState(null);
   const [getUsersLoading, setGetUsersLoading] = useState(false);
   const { currentUser } = useSelector(userSelect);
-  const [showMore, setShowMore] = useState(true);
+  const [showMore, setShowMore] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionFailure, setActionFailure] = useState(null);
+
   useEffect(() => {
     const loadUsers = async () => {
       setGetUsersLoading(true);
@@ -69,11 +73,76 @@ export default function UsersTab() {
     }
   };
 
-  const handleChangeRole = () => {};
+  const handleChangeRole = async (userId) => {
+    setActionLoading(true);
+    setActionFailure(null);
 
-  const handleDeleteUser = () => {};
+    try {
+      const res = await fetch(`/api/user/changeUserRole/${userId}`, {
+        method: "POST",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setActionFailure(data.message);
+      }
+      if (res.ok) {
+        const user = users.find((u) => u._id === userId);
+        user.isAdmin = data.isAdmin;
+      }
+    } catch (err) {
+      setActionFailure(err.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    setActionLoading(true);
+    setActionFailure(null);
+
+    try {
+      const res = await fetch(`/api/user/delete/${userId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setActionFailure(data.message);
+      }
+      if (res.ok) {
+        setUsers((prev) => prev.filter((user) => user._id !== userId));
+      }
+    } catch (err) {
+      setActionFailure(err.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleSearchUsers = async (e) => {
     e.preventDefault();
+    setActionFailure(null);
+    setActionLoading(true);
+    try {
+      const res = await fetch(
+        `/api/user/getUsersByText?searchQuery=${searchQuery}`
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        setActionFailure(data.message);
+      }
+      if (res.ok) {
+        setUsers(data.users);
+        if (data.length > 10) {
+          setShowMore(true);
+        }
+      }
+    } catch (err) {
+      setActionFailure(err.message);
+    } finally {
+      setActionLoading(false);
+    }
   };
   return (
     <div className="max-w-3xl mx-auto mt-8">
@@ -85,6 +154,8 @@ export default function UsersTab() {
         onSubmit={handleSearchUsers}
       >
         <input
+          onChange={(e) => setSearchQuery(e.target.value)}
+          value={searchQuery}
           type="text"
           name="search"
           placeholder="Поиск по имени или email..."
@@ -92,12 +163,19 @@ export default function UsersTab() {
           autoComplete="off"
         />
         <button
+          disabled={actionLoading}
           type="submit"
-          className="bg-blue-500 dark:bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-600 dark:hover:bg-blue-800 transition"
+          className="bg-blue-500 dark:bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-600 dark:hover:bg-blue-800 transition disabled:opacity-[0.5]"
         >
           Найти
         </button>
       </form>
+      {actionFailure && (
+        <div className="bg-red-200 p-3 text-md mt-4 rounded-md">
+          <span className="font-semibold text-md">Ошибка:</span>
+          <p>{actionFailure}</p>
+        </div>
+      )}
       {getUsersLoading ? (
         <div className="text-center text-gray-500 dark:text-gray-400">
           Загрузка контента...
@@ -150,8 +228,9 @@ export default function UsersTab() {
                     {currentUser.isAdmin && currentUser._id !== user._id && (
                       <>
                         <button
+                          disabled={actionLoading}
                           title="Сменить роль"
-                          className={`ml-2 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition ${
+                          className={`ml-2 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition disabled:opacity-[0.5] ${
                             user.isAdmin &&
                             "bg-red-200 dark:bg-red-900 hover:bg-red-300 dark:hover:bg-red-800"
                           }`}
@@ -160,8 +239,9 @@ export default function UsersTab() {
                           <GrUserAdmin className="text-lg text-blue-600 dark:text-blue-400" />
                         </button>
                         <button
+                          disabled={actionLoading}
                           title="Удалить пользователя"
-                          className="ml-2 p-2 rounded hover:bg-red-100 dark:hover:bg-red-900 transition"
+                          className="ml-2 p-2 rounded hover:bg-red-100 disabled:opacity-[0.5] dark:hover:bg-red-900 transition"
                           onClick={() => handleDeleteUser(user._id)}
                         >
                           <MdDelete className="text-lg text-red-600 dark:text-red-400" />

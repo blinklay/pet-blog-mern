@@ -18,7 +18,7 @@ export default function PostsTab() {
   const [successAlert, setSuccessAlert] = useState(null);
   const [deletePostLoading, setDeletePostLoading] = useState(false);
 
-  const [showMore, setShowMore] = useState(true);
+  const [showMore, setShowMore] = useState(false);
   useEffect(() => {
     const fetchPosts = async () => {
       setGetPostsLoaing(true);
@@ -31,7 +31,7 @@ export default function PostsTab() {
         }
         if (res.ok) {
           setUserPosts(data.posts);
-          if (data.posts.length < 9) setShowMore(true);
+          if (data.posts.length > 9) setShowMore(true);
         }
       } catch (err) {
         console.error(err);
