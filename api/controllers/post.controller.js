@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose")
 const postModel = require("../models/post.model")
 const errorHandler = require("../utils/error")
 const jwt = require("jsonwebtoken")
+const commentModel = require("../models/comment.model")
 
 const create = async (req, res, next) => {
   if (!req.user.isAdmin) {
@@ -78,7 +79,9 @@ const deletePost = async (req, res, next) => {
     if (post.userId !== req.user.id) {
       return next(errorHandler(400, "Удалить пост может только его владелец!"))
     }
-
+    await commentModel.deleteMany({
+      _id: { $in: post.comments }
+    })
     await postModel.findOneAndDelete({ _id: postId, userId: req.user.id })
     res.status(200).json({ message: "Пост успешно удален!" })
   } catch (err) {

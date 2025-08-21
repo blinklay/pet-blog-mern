@@ -2,6 +2,20 @@ const commentModel = require("../models/comment.model");
 const postModel = require("../models/post.model");
 const errorHandler = require("../utils/error");
 
+const getCommnets = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const comments = await commentModel.find({
+      ...(req.query.userId) && { author: req.query.userId }
+    }).limit(limit).skip(startIndex)
+
+    res.status(200).json({ comments })
+  } catch (err) {
+    next(err)
+  }
+}
+
 const addComment = async (req, res, next) => {
   try {
     const { postSlug } = req.params;
@@ -19,6 +33,7 @@ const addComment = async (req, res, next) => {
     const comment = new commentModel({
       author: req.user.id,
       text: text.trim(),
+      postId: post._id
     });
 
     const newComment = await comment.save();
@@ -64,4 +79,4 @@ const deleteComment = async (req, res, next) => {
   }
 }
 
-module.exports = { deleteComment, addComment }
+module.exports = { deleteComment, addComment, getCommnets }

@@ -9,6 +9,10 @@ const commentSchema = new Schema({
   text: {
     type: String,
     required: true,
+  },
+  postId: {
+    type: Schema.Types.ObjectId,
+    ref: "Post"
   }
 }, {
   timestamps: true
