@@ -8,9 +8,9 @@ const getCommnets = async (req, res, next) => {
     const startIndex = parseInt(req.query.startIndex) || 0;
     const comments = await commentModel.find({
       ...(req.query.userId) && { author: req.query.userId }
-    }).limit(limit).skip(startIndex)
-
-    res.status(200).json({ comments })
+    }).limit(limit).skip(startIndex).populate("author").populate("postId", "slug")
+    const totalComments = await commentModel.countDocuments()
+    res.status(200).json({ comments, totalComments })
   } catch (err) {
     next(err)
   }
