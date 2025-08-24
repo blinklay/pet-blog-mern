@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 export default function HomePage() {
-  const categories = ["JavaScript", "React.js", "Next.js", "Express.js"];
+  const categories = ["javascript", "React.js", "Next.js", "Express.js"];
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 transition-colors duration-300">
