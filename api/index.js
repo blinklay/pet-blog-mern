@@ -9,25 +9,33 @@ const cookieParser = require("cookie-parser")
 const cors = require("cors")
 const postRouter = require("./routes/post.route")
 const commentRouter = require("./routes/comment.route")
+const path = require("path")
 mongoose.connect(MONGO_URI)
   .then(() => console.log("mongoDB is running..."))
   .catch(err => console.log("mongoDB have error, ", err))
+
+const _dirname = path.resolve()
 
 const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: process.env.CLIENT_ORIGINS,
   credentials: true
 }));
 app.listen(PORT, () => {
   console.log("server is running on port: ", PORT);
 })
 
+app.use(express.static(path.join(_dirname, "/client/dist")))
+app.get("*", (req, res) => {
+  res.sendFile(path.join(_dirname, "client", "dist", "index.html"))
+})
 app.use("/api/user", userRouter)
 app.use("/api/auth", authRouter)
 app.use("/api/post", postRouter)
 app.use("/api/comment", commentRouter)
+
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
